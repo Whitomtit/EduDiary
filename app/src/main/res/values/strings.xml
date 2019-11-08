@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name"><font fgcolor='#FFFFFF'>EduDiary</font></string>
+    <string name="subject_picker">Subject</string>
+    <string name="date_picker">Date</string>
+</resources>
