@@ -1,6 +1,8 @@
 package com.example.myapplication;
 
-public class Item {
+import java.io.Serializable;
+
+public class Item implements Serializable {
     private String content;
     private boolean isDone;
 
@@ -20,4 +22,5 @@ public class Item {
     public void toggle() {
         this.isDone = !isDone;
     }
+
 }

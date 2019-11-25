@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.myapplication.HomeworkManagerContract.HomeworkDbHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        HomeworkDbHelper dbHelper = new HomeworkDbHelper(this);
 
         homework = findViewById(R.id.listViewHomework);
         actionButton = findViewById(R.id.fab);

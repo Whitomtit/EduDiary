@@ -28,6 +28,10 @@ public class Homework {
         return format.format(this.date);
     }
 
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
     public void setDate(Date date) {
         this.date = date;
     }
