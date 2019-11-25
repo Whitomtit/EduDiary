@@ -35,7 +35,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
         holder.subjectName.setText(homework.getSubject());
         holder.deadlineDate.setText(homework.getDateAsString());
         if (holder.groupHolders.size() == 0) {
-            for (ItemGroup itemGroup : homework.getGroupList()) {
+            for (Category itemGroup : homework.getCategoryList()) {
                 View groupView = LayoutInflater.from(holder.groupData.getContext()).inflate(R.layout.homework_group,
                         holder.groupData, true);
 

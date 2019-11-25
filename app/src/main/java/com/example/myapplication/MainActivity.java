@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static List<Homework> getTestData() {
         List<Homework> list = new ArrayList<>();
-        List<ItemGroup> groupList = new ArrayList<>();
+        List<Category> groupList = new ArrayList<>();
         ArrayList<Item> items = new ArrayList<>();
         items.add(new Item("ex. 16"));
         items.add(new Item("Написать очень длинное сообщение, которое займёт всю строчку"));
@@ -52,10 +52,10 @@ public class MainActivity extends AppCompatActivity {
         items.add(new Item("ex. 18"));
         items.add(new Item("ex. 19"));
 
-        groupList.add(new ItemGroup("test1", items));
-        groupList.add(new ItemGroup("test2", items));
-        groupList.add(new ItemGroup("test3", items));
-        groupList.add(new ItemGroup("test4", items));
+        groupList.add(new Category("test1", items));
+        groupList.add(new Category("test2", items));
+        groupList.add(new Category("test3", items));
+        groupList.add(new Category("test4", items));
         list.add(new Homework("Math", new Date(), groupList));
         list.add(new Homework("Programming", new Date(), groupList));
         list.add(new Homework("Literature", new Date(), groupList));
