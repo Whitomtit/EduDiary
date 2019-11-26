@@ -4,66 +4,76 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.example.myapplication.HomeworkManagerContract.HomeworkDbHelper;
+import com.example.myapplication.object.Homework;
+import com.example.myapplication.utils.HomeworkDbManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.io.IOException;
 import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView homework;
+    RecyclerView homework;
     FloatingActionButton actionButton;
+    HomeworkDbManager db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        HomeworkDbHelper dbHelper = new HomeworkDbHelper(this);
+        db = new HomeworkDbManager(this);
+        fetchHomework();
 
         homework = findViewById(R.id.listViewHomework);
         actionButton = findViewById(R.id.fab);
 
         homework.setHasFixedSize(true);
         homework.setLayoutManager(new LinearLayoutManager(this));
-        homework.setAdapter(new HomeworkAdapter(getTestData()));
+        homework.setAdapter(new HomeworkAdapter(fetchHomework()));
 
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, EditActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
     }
 
-    private static List<Homework> getTestData() {
-        List<Homework> list = new ArrayList<>();
-        List<Category> groupList = new ArrayList<>();
-        ArrayList<Item> items = new ArrayList<>();
-        items.add(new Item("ex. 16"));
-        items.add(new Item("Написать очень длинное сообщение, которое займёт всю строчку"));
-        items.add(new Item("ex. 19"));
-        items.add(new Item("ex. 16"));
-        items.add(new Item("ex. 18"));
-        items.add(new Item("ex. 19"));
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                ((HomeworkAdapter)homework.getAdapter()).updateList(fetchHomework());
+            }
+        }
 
-        groupList.add(new Category("test1", items));
-        groupList.add(new Category("test2", items));
-        groupList.add(new Category("test3", items));
-        groupList.add(new Category("test4", items));
-        list.add(new Homework("Math", new Date(), groupList));
-        list.add(new Homework("Programming", new Date(), groupList));
-        list.add(new Homework("Literature", new Date(), groupList));
-        list.add(new Homework("English", new Date(), groupList));
-        list.add(new Homework("Physics", new Date(), groupList));
-        return list;
     }
+
+    @Override
+    protected void onDestroy() {
+        db.close();
+        super.onDestroy();
+    }
+
+    private List<Homework> fetchHomework() {
+        List<Homework> result = null;
+        try {
+            result = db.getAllHomework();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 }

@@ -8,6 +8,9 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myapplication.object.Category;
+import com.example.myapplication.object.Homework;
+import com.example.myapplication.object.Item;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -20,6 +23,11 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
 
     public HomeworkAdapter(List<Homework> homeworkList) {
         this.homeworkList = homeworkList;
+    }
+
+    public void updateList(List<Homework> homeworkList) {
+        this.homeworkList = homeworkList;
+        notifyDataSetChanged();
     }
 
     @Override

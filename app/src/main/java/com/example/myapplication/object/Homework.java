@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.object;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,5 +54,9 @@ public class Homework {
 
     public boolean isEmpty() {
         return categoryList.isEmpty();
+    }
+
+    public Date getDate() {
+        return this.date;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.object;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +9,8 @@ import java.util.List;
 public class Category {
     private String name;
     private List<Item> itemList;
-    private View view;
-    private ViewGroup itemBox;
+    transient private View view;
+    transient private ViewGroup itemBox;
 
     public Category(String name, List<Item> itemList) {
         this.name = name;

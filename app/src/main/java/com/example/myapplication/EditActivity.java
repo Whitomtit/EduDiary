@@ -3,6 +3,7 @@ package com.example.myapplication;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,6 +25,10 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.myapplication.object.Category;
+import com.example.myapplication.object.Homework;
+import com.example.myapplication.object.Item;
+import com.example.myapplication.utils.HomeworkDbManager;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -32,6 +37,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -42,12 +48,15 @@ public class EditActivity extends AppCompatActivity {
     FloatingActionButton fabAddCategory;
     Homework homework;
     LinearLayout categoryList;
-    Button buttonSave;
+    Button buttonSave, buttonCancel;
+    HomeworkDbManager db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
+
+        db = new HomeworkDbManager(this);
 
         homework = new Homework();
         fabAddCategory = findViewById(R.id.fab_add_category);
@@ -55,6 +64,7 @@ public class EditActivity extends AppCompatActivity {
         datePicker = findViewById(R.id.date_picker);
         categoryList = findViewById(R.id.category_list);
         buttonSave = findViewById(R.id.edit_button_save);
+        buttonCancel = findViewById(R.id.edit_button_cancel);
 
 
         String[] SUBJECTS = new String[] {"Law", "Sport", "Literature", "Physics", "Chemistry",
@@ -73,7 +83,6 @@ public class EditActivity extends AppCompatActivity {
                 getLayoutFromEditText(subjectPicker).setErrorEnabled(false);
             }
         });
-
 
         datePicker.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -182,6 +191,8 @@ public class EditActivity extends AppCompatActivity {
                 if (subjectPicker.getText().toString().isEmpty()) {
                     getLayoutFromEditText(subjectPicker).setError("*Required");
                     error = true;
+                } else {
+                    homework.setSubject(subjectPicker.getText().toString());
                 }
                 if (datePicker.getText().toString().isEmpty()) {
                     getLayoutFromEditText(datePicker).setError("*Required");
@@ -207,8 +218,32 @@ public class EditActivity extends AppCompatActivity {
                 }
 
                 if (error) return;
+
+                try {
+                    db.addHomework(homework);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                setResult(Activity.RESULT_OK);
+                finish();
+
             }
         });
+
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setResult(Activity.RESULT_CANCELED);
+                finish();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        db.close();
+        super.onDestroy();
     }
 
     private void addCategory(String name) {
