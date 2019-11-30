@@ -1,14 +1,17 @@
 package com.example.myapplication.object;
 
-import java.io.Serializable;
-
-public class Item implements Serializable {
+public class Item {
     private String content;
     private boolean isDone;
 
     public Item(String content) {
         this.content = content;
         this.isDone = false;
+    }
+
+    public Item(String content, boolean isDone) {
+        this.content = content;
+        this.isDone = isDone;
     }
 
     public boolean isDone() {

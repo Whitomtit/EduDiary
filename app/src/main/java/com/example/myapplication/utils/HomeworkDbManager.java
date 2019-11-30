@@ -11,11 +11,6 @@ import com.example.myapplication.object.Category;
 import com.example.myapplication.object.Homework;
 import com.example.myapplication.object.Item;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +22,7 @@ public class HomeworkDbManager {
         this.dbHelper = new HomeworkDbHelper(context);
     }
 
-    public List<Homework> getAllHomework() throws IOException, ClassNotFoundException {
+    public List<Homework> getAllHomework() {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ArrayList<Homework> homeworkList = new ArrayList<>();
 
@@ -48,51 +43,23 @@ public class HomeworkDbManager {
                     cursor.getColumnIndexOrThrow(HomeworkEntry.COLUMN_NAME_DATE)));
             long homeworkId = cursor.getLong(
                     cursor.getColumnIndexOrThrow(HomeworkEntry._ID));
-            homeworkList.add(new Homework(subject, date, getCategoriesById(homeworkId)));
+            homeworkList.add(new Homework(subject, date, getCategoriesByHomeworkId(homeworkId)));
         }
         cursor.close();
         return homeworkList;
     }
 
-    public void addHomework(Homework homework) throws IOException {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(HomeworkEntry.COLUMN_NAME_SUBJECT, homework.getSubject());
-        values.put(HomeworkEntry.COLUMN_NAME_DATE, homework.getDate().getTime());
-
-        long id = db.insert(HomeworkEntry.TABLE_NAME, null, values);
-
-        for (Category category : homework.getCategoryList())
-            addCategory(category, id);
-    }
-
-    public void addCategory(Category category, long id) throws IOException {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        ByteArrayOutputStream serializedItems = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(serializedItems);
-        objectOutputStream.writeObject(category.getItemList());
-
-        ContentValues values = new ContentValues();
-        values.put(CategoryEntry.COLUMN_NAME_NAME, category.getName());
-        values.put(CategoryEntry.COLUMN_NAME_HOMEWORK_ID, id);
-        values.put(CategoryEntry.COLUMN_NAME_ITEMS, serializedItems.toByteArray());
-
-        db.insert(CategoryEntry.TABLE_NAME, null, values);
-    }
-
-    public List<Category> getCategoriesById(long id) throws IOException, ClassNotFoundException {
+    public List<Category> getCategoriesByHomeworkId(long homeworkId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ArrayList<Category> categoryList = new ArrayList<>();
 
         String[] projection = {
-                CategoryEntry.COLUMN_NAME_NAME,
-                CategoryEntry.COLUMN_NAME_ITEMS
+                CategoryEntry._ID,
+                CategoryEntry.COLUMN_NAME_NAME
         };
 
         String selection = CategoryEntry.COLUMN_NAME_HOMEWORK_ID + " = ?";
-        String[] selectionArgs = { String.valueOf(id) };
+        String[] selectionArgs = { String.valueOf(homeworkId) };
 
         Cursor cursor = db.query(
                 CategoryEntry.TABLE_NAME,
@@ -107,15 +74,87 @@ public class HomeworkDbManager {
         while (cursor.moveToNext()) {
             String name = cursor.getString(
                     cursor.getColumnIndexOrThrow(CategoryEntry.COLUMN_NAME_NAME));
-            byte[] items = cursor.getBlob(
-                    cursor.getColumnIndexOrThrow(CategoryEntry.COLUMN_NAME_ITEMS));
-            ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(items));
-            categoryList.add(new Category(name, (List<Item>) in.readObject()));
+            long categoryId = cursor.getLong(
+                    cursor.getColumnIndexOrThrow(CategoryEntry._ID));
+            categoryList.add(new Category(name, getItemsByCategoryId(categoryId)));
         }
 
         cursor.close();
 
         return categoryList;
+    }
+
+    private List<Item> getItemsByCategoryId(long categoryId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        ArrayList<Item> itemList = new ArrayList<>();
+
+        String[] projection = {
+                ItemEntry._ID,
+                ItemEntry.COLUMN_NAME_CONTENT,
+                ItemEntry.COLUMN_NAME_IS_DONE
+        };
+
+        String selection = ItemEntry.COLUMN_NAME_CATEGORY_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(categoryId) };
+
+        Cursor cursor = db.query(
+                ItemEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        while (cursor.moveToNext()) {
+            String content = cursor.getString(
+                    cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_NAME_CONTENT));
+            boolean isDone = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_NAME_IS_DONE)) > 0;
+            itemList.add(new Item(content, isDone));
+        }
+
+        cursor.close();
+
+        return itemList;
+    }
+
+    public void addHomework(Homework homework) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(HomeworkEntry.COLUMN_NAME_SUBJECT, homework.getSubject());
+        values.put(HomeworkEntry.COLUMN_NAME_DATE, homework.getDate().getTime());
+
+        long homeworkId = db.insert(HomeworkEntry.TABLE_NAME, null, values);
+
+        for (Category category : homework.getCategoryList())
+            addCategory(category, homeworkId);
+    }
+
+    public void addCategory(Category category, long homeworkId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(CategoryEntry.COLUMN_NAME_NAME, category.getName());
+        values.put(CategoryEntry.COLUMN_NAME_HOMEWORK_ID, homeworkId);
+
+        long categoryId = db.insert(CategoryEntry.TABLE_NAME, null, values);
+
+        for (Item item : category.getItemList())
+            addItem(item, categoryId);
+    }
+
+    private void addItem(Item item, long categoryId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(ItemEntry.COLUMN_NAME_CONTENT, item.getContent());
+        values.put(ItemEntry.COLUMN_NAME_IS_DONE, item.isDone());
+        values.put(ItemEntry.COLUMN_NAME_CATEGORY_ID, categoryId);
+
+        db.insert(ItemEntry.TABLE_NAME, null, values);
     }
 
     public void close() {
@@ -138,15 +177,27 @@ public class HomeworkDbManager {
     private static class CategoryEntry implements BaseColumns {
         private static final String TABLE_NAME = "category_entry";
         private static final String COLUMN_NAME_NAME = "name";
-        private static final String COLUMN_NAME_ITEMS = "items";
         private static final String COLUMN_NAME_HOMEWORK_ID = "homework_id";
 
         private static final String SQL_CREATE_ENTRY =
                 "CREATE TABLE " + TABLE_NAME + " (" +
                         _ID + " INTEGER PRIMARY KEY," +
                         COLUMN_NAME_NAME + " TEXT," +
-                        COLUMN_NAME_ITEMS + " BLOB," +
                         COLUMN_NAME_HOMEWORK_ID + " INTEGER)";
+    }
+
+    private static class ItemEntry implements BaseColumns {
+        private static final String TABLE_NAME = "item_entry";
+        private static final String COLUMN_NAME_CONTENT = "content";
+        private static final String COLUMN_NAME_IS_DONE = "is_done";
+        private static final String COLUMN_NAME_CATEGORY_ID = "category_id";
+
+        private static final String SQL_CREATE_ENTRY =
+                "CREATE TABLE " + TABLE_NAME + " (" +
+                        _ID + " INTEGER PRIMARY KEY," +
+                        COLUMN_NAME_CONTENT + " TEXT," +
+                        COLUMN_NAME_IS_DONE + " BOOLEAN," +
+                        COLUMN_NAME_CATEGORY_ID + " INTEGER)";
     }
 
     public class HomeworkDbHelper extends SQLiteOpenHelper {
@@ -161,6 +212,7 @@ public class HomeworkDbManager {
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
             sqLiteDatabase.execSQL(HomeworkEntry.SQL_CREATE_ENTRY);
             sqLiteDatabase.execSQL(CategoryEntry.SQL_CREATE_ENTRY);
+            sqLiteDatabase.execSQL(ItemEntry.SQL_CREATE_ENTRY);
         }
 
         @Override

@@ -9,12 +9,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.example.myapplication.object.Homework;
 import com.example.myapplication.utils.HomeworkDbManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.io.IOException;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -29,14 +25,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         db = new HomeworkDbManager(this);
-        fetchHomework();
 
         homework = findViewById(R.id.listViewHomework);
         actionButton = findViewById(R.id.fab);
 
         homework.setHasFixedSize(true);
         homework.setLayoutManager(new LinearLayoutManager(this));
-        homework.setAdapter(new HomeworkAdapter(fetchHomework()));
+        homework.setAdapter(new HomeworkAdapter(db.getAllHomework()));
 
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
-                ((HomeworkAdapter)homework.getAdapter()).updateList(fetchHomework());
+                ((HomeworkAdapter)homework.getAdapter()).updateList(db.getAllHomework());
             }
         }
 
@@ -64,16 +59,5 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private List<Homework> fetchHomework() {
-        List<Homework> result = null;
-        try {
-            result = db.getAllHomework();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
 
 }

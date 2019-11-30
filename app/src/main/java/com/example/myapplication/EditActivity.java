@@ -37,7 +37,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -97,7 +96,9 @@ public class EditActivity extends AppCompatActivity {
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int day) {
-                                datePicker.setText(day + "/" + (month + 1) + "/" + year);
+                                String date = getString(R.string.date_format);
+                                date = String.format(date, day, month + 1, year);
+                                datePicker.setText(date);
                             }
                         }, year, month, day);
                 picker.show();
@@ -146,7 +147,7 @@ public class EditActivity extends AppCompatActivity {
                         input.post(new Runnable() {
                             @Override
                             public void run() {
-                                InputMethodManager inputMethodManager= (InputMethodManager) EditActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                                InputMethodManager inputMethodManager = (InputMethodManager) EditActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                                 inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
                             }
                         });
@@ -219,11 +220,7 @@ public class EditActivity extends AppCompatActivity {
 
                 if (error) return;
 
-                try {
-                    db.addHomework(homework);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                db.addHomework(homework);
 
                 setResult(Activity.RESULT_OK);
                 finish();
