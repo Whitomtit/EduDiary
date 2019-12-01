@@ -1,16 +1,23 @@
 package com.example.myapplication;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.object.Category;
 import com.example.myapplication.object.Homework;
 import com.example.myapplication.object.Item;
+import com.example.myapplication.utils.HomeworkDbManager;
+import com.example.myapplication.utils.Utils;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -19,15 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolder> {
+    private HomeworkDbManager dbManager;
     private List<Homework> homeworkList;
+    private Context context;
 
-    public HomeworkAdapter(List<Homework> homeworkList) {
+    public HomeworkAdapter(Context context, List<Homework> homeworkList, HomeworkDbManager dbManager) {
+        this.context = context;
         this.homeworkList = homeworkList;
-    }
-
-    public void updateList(List<Homework> homeworkList) {
-        this.homeworkList = homeworkList;
-        notifyDataSetChanged();
+        this.dbManager = dbManager;
     }
 
     @Override
@@ -38,8 +44,8 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
     }
 
     @Override
-    public void onBindViewHolder(HomeworkHolder holder, int position) {
-        Homework homework = homeworkList.get(position);
+    public void onBindViewHolder(final HomeworkHolder holder, final int position) {
+        final Homework homework = homeworkList.get(position);
         holder.subjectName.setText(homework.getSubject());
         holder.deadlineDate.setText(homework.getDateAsString());
         if (holder.groupHolders.size() == 0) {
@@ -61,6 +67,33 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
                 holder.addGroupHolder(group);
             }
         }
+        holder.card.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                PopupMenu menu = Utils.showMenu(holder.deadlineDate);
+                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.menu_delete:
+                                dbManager.deleteHomework(homework);
+                                int position = homeworkList.indexOf(homework);
+                                homeworkList.remove(position);
+                                notifyItemRemoved(position);
+                                return true;
+                            case R.id.menu_edit:
+                                Intent intent = new Intent(context, EditActivity.class);
+                                intent.putExtra("homework", homework);
+                                ((Activity)context).startActivityForResult(intent, 2);
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                });
+                return true;
+            }
+        });
     }
 
     @Override
@@ -69,13 +102,13 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
     }
 
     public static class HomeworkHolder extends RecyclerView.ViewHolder {
-        public MaterialCardView card;
-        public TextView subjectName;
-        public TextView deadlineDate;
-        public LinearLayout groupData;
-        public List<GroupHolder> groupHolders;
+        private MaterialCardView card;
+        private TextView subjectName;
+        private TextView deadlineDate;
+        private LinearLayout groupData;
+        private List<GroupHolder> groupHolders;
 
-        public HomeworkHolder(View v) {
+        private HomeworkHolder(View v) {
             super(v);
             card = v.findViewById(R.id.card);
             subjectName = card.findViewById(R.id.subjectName);
@@ -84,16 +117,16 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
             groupHolders = new ArrayList<>();
         }
 
-        public void addGroupHolder(GroupHolder g) {
+        private void addGroupHolder(GroupHolder g) {
             groupHolders.add(g);
         }
     }
 
-    public static class GroupHolder {
-        public TextView groupName;
-        public ChipGroup chipGroup;
-        public List<Chip> chips;
-        public GroupHolder(View v, int id) {
+    private static class GroupHolder {
+        private TextView groupName;
+        private ChipGroup chipGroup;
+        private List<Chip> chips;
+        private GroupHolder(View v, int id) {
             groupName = v.findViewById(R.id.groupName);
             groupName.setId(id);
             chipGroup = v.findViewById(R.id.chipsGroup);
@@ -101,7 +134,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
             chips = new ArrayList<>();
         }
 
-        public void addChip(Chip c, int id) {
+        private void addChip(Chip c, int id) {
             c.setId(id);
             chips.add(c);
         }

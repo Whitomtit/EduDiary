@@ -3,16 +3,19 @@ package com.example.myapplication.object;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Category {
+public class Category implements Serializable {
+    private long id = -1;
     private String name;
     private List<Item> itemList;
     transient private View view;
     transient private ViewGroup itemBox;
 
-    public Category(String name, List<Item> itemList) {
+    public Category(long id, String name, List<Item> itemList) {
+        this.id = id;
         this.name = name;
         this.itemList = itemList;
     }
@@ -50,5 +53,13 @@ public class Category {
 
     public boolean isEmpty() {
         return itemList.isEmpty();
+    }
+
+    public long getId() {
+        return this.id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

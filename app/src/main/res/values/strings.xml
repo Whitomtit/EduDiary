@@ -2,8 +2,10 @@
     <string name="app_name"><font fgcolor='#FFFFFF'>EduDiary</font></string>
     <string name="subject_picker">Subject</string>
     <string name="date_picker">Date</string>
-    <string name="add_category_title"><b>Enter category name</b></string>
+    <string name="add_category_title"><b>Choose a category name</b></string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
-    <string name="date_format">%d/%d/%d</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="add_category_hint">Page number, book, etc</string>
 </resources>

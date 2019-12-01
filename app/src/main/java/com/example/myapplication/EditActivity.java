@@ -7,12 +7,11 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -21,7 +20,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,6 +27,7 @@ import com.example.myapplication.object.Category;
 import com.example.myapplication.object.Homework;
 import com.example.myapplication.object.Item;
 import com.example.myapplication.utils.HomeworkDbManager;
+import com.example.myapplication.utils.Utils;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -38,7 +37,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class EditActivity extends AppCompatActivity {
@@ -57,7 +55,6 @@ public class EditActivity extends AppCompatActivity {
 
         db = new HomeworkDbManager(this);
 
-        homework = new Homework();
         fabAddCategory = findViewById(R.id.fab_add_category);
         subjectPicker = findViewById(R.id.subject_picker);
         datePicker = findViewById(R.id.date_picker);
@@ -65,6 +62,9 @@ public class EditActivity extends AppCompatActivity {
         buttonSave = findViewById(R.id.edit_button_save);
         buttonCancel = findViewById(R.id.edit_button_cancel);
 
+        homework = new Homework();
+        Intent intent = getIntent();
+        setData((Homework) intent.getSerializableExtra("homework"));
 
         String[] SUBJECTS = new String[] {"Law", "Sport", "Literature", "Physics", "Chemistry",
             "Biology", "Programming", "Robophysics", "English", "Math"};
@@ -79,7 +79,7 @@ public class EditActivity extends AppCompatActivity {
         subjectPicker.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                getLayoutFromEditText(subjectPicker).setErrorEnabled(false);
+                Utils.getLayoutFromEditText(subjectPicker).setErrorEnabled(false);
             }
         });
 
@@ -96,13 +96,12 @@ public class EditActivity extends AppCompatActivity {
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int day) {
-                                String date = getString(R.string.date_format);
-                                date = String.format(date, day, month + 1, year);
-                                datePicker.setText(date);
+                                calendar.set(year, month,day, 0, 0);
+                                datePicker.setText(Utils.dateToString(calendar.getTime()));
                             }
                         }, year, month, day);
                 picker.show();
-                getLayoutFromEditText(datePicker).setErrorEnabled(false);
+                Utils.getLayoutFromEditText(datePicker).setErrorEnabled(false);
 
             }
         });
@@ -124,20 +123,25 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 final EditText input = new EditText(EditActivity.this);
                 input.setSingleLine();
-                input.setHint("Page number, book, etc");
+                input.setHint(getString(R.string.add_category_hint));
                 final TextView title = new TextView(EditActivity.this);
                 title.setTypeface(null, Typeface.BOLD);
-                title.setText("Chose a category name");
+                title.setText(getString(R.string.add_category_title));
                 final AlertDialog dialog = new MaterialAlertDialogBuilder(EditActivity.this)
                         .setTitle(R.string.add_category_title)
                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                addCategory(input.getText().toString());
+                                Category category = addCategory(input.getText().toString());
+                                Utils.getEditTextFromLayout((TextInputLayout) category.getView()).requestFocus();
                             }
                         })
                         .setNegativeButton("Cancel", null)
-                        .setView(input, convertPixelsToDp(256, EditActivity.this), 0, convertPixelsToDp(256, EditActivity.this), 0)
+                        .setView(input,
+                                Utils.convertPixelsToDp(256, EditActivity.this),
+                                0,
+                                Utils.convertPixelsToDp(256, EditActivity.this),
+                                0)
                         .create();
                 dialog.show();
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
@@ -190,19 +194,19 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 boolean error = false;
                 if (subjectPicker.getText().toString().isEmpty()) {
-                    getLayoutFromEditText(subjectPicker).setError("*Required");
+                    Utils.getLayoutFromEditText(subjectPicker).setError("*Required");
                     error = true;
                 } else {
                     homework.setSubject(subjectPicker.getText().toString());
                 }
                 if (datePicker.getText().toString().isEmpty()) {
-                    getLayoutFromEditText(datePicker).setError("*Required");
+                    Utils.getLayoutFromEditText(datePicker).setError("*Required");
                     error = true;
                 } else {
                     try {
-                        homework.setDate(new SimpleDateFormat("d/M/yyyy").parse(datePicker.getText().toString()));
+                        homework.setDate(Utils.dateFromString(datePicker.getText().toString()));
                     } catch (ParseException e) {
-                        getLayoutFromEditText(datePicker).setError("Correct date format dd/mm/yyyy");
+                        Utils.getLayoutFromEditText(datePicker).setError("Incorrect date format");
                         error = true;
                     }
                 }
@@ -220,7 +224,7 @@ public class EditActivity extends AppCompatActivity {
 
                 if (error) return;
 
-                db.addHomework(homework);
+                db.updateHomework(homework);
 
                 setResult(Activity.RESULT_OK);
                 finish();
@@ -237,13 +241,29 @@ public class EditActivity extends AppCompatActivity {
         });
     }
 
+    private void setData(Homework homework) {
+        if (homework == null) return;
+        this.homework = new Homework(homework);
+
+        subjectPicker.setText(homework.getSubject());
+        datePicker.setText(homework.getDateAsString());
+
+        for (Category category : homework.getCategoryList()) {
+            Category activityCategory = addCategory(category.getName());
+            activityCategory.setId(category.getId());
+            for (Item item : category.getItemList())
+                addItem(item, activityCategory);
+        }
+
+    }
+
     @Override
     protected void onDestroy() {
         db.close();
         super.onDestroy();
     }
 
-    private void addCategory(String name) {
+    private Category addCategory(String name) {
         final TextInputLayout categoryView = (TextInputLayout) getLayoutInflater().inflate(R.layout.edit_category_entry, null);
         final Category category = new Category(name, (ChipGroup) categoryView.getChildAt(1), categoryView);
 
@@ -251,33 +271,19 @@ public class EditActivity extends AppCompatActivity {
         categoryView.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (category.getId() != -1) db.deleteCategory(category);
                 homework.removeCategory(category);
                 categoryList.removeView(categoryView);
             }
         });
 
 
-        getEditTextFromLayout(categoryView).setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        Utils.getEditTextFromLayout(categoryView).setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (!v.getText().toString().trim().isEmpty()) {
-                    final Chip itemView = (Chip) getLayoutInflater().inflate(R.layout.edit_category_chip, null);
-                    final Item item = new Item(v.getText().toString());
-
-                    itemView.setText(item.getContent());
-                    itemView.setOnCloseIconClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            category.getItemBox().removeView(itemView);
-                            category.removeItem(item);
-                        }
-                    });
-
-                    category.getItemBox().addView(itemView);
-                    category.addItem(item);
-
-                    v.setText("");
+                    addItem(v, category);
                     handled = true;
                     categoryView.setErrorEnabled(false);
                 }
@@ -288,20 +294,30 @@ public class EditActivity extends AppCompatActivity {
         categoryList.addView(categoryView);
         homework.addCategory(category);
 
-        categoryView.requestFocus();
+        return category;
     }
+    private void addItem(final Item item, final Category category) {
+        final Chip itemView = (Chip) getLayoutInflater().inflate(R.layout.edit_category_chip, null);
 
-    private TextInputLayout getLayoutFromEditText(EditText v) {
-        return ((TextInputLayout)((FrameLayout)v.getParent()).getParent());
+        itemView.setText(item.getContent());
+        itemView.setChecked(item.isDone());
+        itemView.setOnCloseIconClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (item.getId() != -1) db.deleteItem(item);
+                category.getItemBox().removeView(itemView);
+                category.removeItem(item);
+            }
+        });
+
+        category.getItemBox().addView(itemView);
+        category.addItem(item);
+
+
     }
-
-    private TextInputEditText getEditTextFromLayout(TextInputLayout layout) {
-        return (TextInputEditText)((FrameLayout)layout.getChildAt(0)).getChildAt(0);
-    }
-
-    private static int convertPixelsToDp(float px, Context context){
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        return  (int) (px / (metrics.densityDpi / 160f));
+    private void addItem(TextView v, final Category category) {
+        Item item = new Item(v.getText().toString());
+        addItem(item, category);
+        v.setText("");
     }
 }

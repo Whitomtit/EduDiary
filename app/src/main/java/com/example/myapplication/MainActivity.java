@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         homework.setHasFixedSize(true);
         homework.setLayoutManager(new LinearLayoutManager(this));
-        homework.setAdapter(new HomeworkAdapter(db.getAllHomework()));
+        homework.setAdapter(new HomeworkAdapter(this, db.getAllHomework(), db));
 
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,10 +45,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1) {
-            if (resultCode == Activity.RESULT_OK) {
-                ((HomeworkAdapter)homework.getAdapter()).updateList(db.getAllHomework());
-            }
+        if (resultCode == Activity.RESULT_OK) {
+            homework.setAdapter(new HomeworkAdapter(this, db.getAllHomework(), db));
         }
 
     }

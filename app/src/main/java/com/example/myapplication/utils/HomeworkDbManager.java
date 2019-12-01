@@ -43,13 +43,13 @@ public class HomeworkDbManager {
                     cursor.getColumnIndexOrThrow(HomeworkEntry.COLUMN_NAME_DATE)));
             long homeworkId = cursor.getLong(
                     cursor.getColumnIndexOrThrow(HomeworkEntry._ID));
-            homeworkList.add(new Homework(subject, date, getCategoriesByHomeworkId(homeworkId)));
+            homeworkList.add(new Homework(subject, date, getCategoriesByHomeworkId(homeworkId), homeworkId));
         }
         cursor.close();
         return homeworkList;
     }
 
-    public List<Category> getCategoriesByHomeworkId(long homeworkId) {
+    private List<Category> getCategoriesByHomeworkId(long homeworkId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ArrayList<Category> categoryList = new ArrayList<>();
 
@@ -76,7 +76,7 @@ public class HomeworkDbManager {
                     cursor.getColumnIndexOrThrow(CategoryEntry.COLUMN_NAME_NAME));
             long categoryId = cursor.getLong(
                     cursor.getColumnIndexOrThrow(CategoryEntry._ID));
-            categoryList.add(new Category(name, getItemsByCategoryId(categoryId)));
+            categoryList.add(new Category(categoryId, name, getItemsByCategoryId(categoryId)));
         }
 
         cursor.close();
@@ -112,7 +112,9 @@ public class HomeworkDbManager {
                     cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_NAME_CONTENT));
             boolean isDone = cursor.getInt(
                     cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_NAME_IS_DONE)) > 0;
-            itemList.add(new Item(content, isDone));
+            long itemId = cursor.getLong(
+                    cursor.getColumnIndexOrThrow(ItemEntry._ID));
+            itemList.add(new Item(itemId, content, isDone));
         }
 
         cursor.close();
@@ -120,7 +122,7 @@ public class HomeworkDbManager {
         return itemList;
     }
 
-    public void addHomework(Homework homework) {
+    private void addHomework(Homework homework) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -133,7 +135,7 @@ public class HomeworkDbManager {
             addCategory(category, homeworkId);
     }
 
-    public void addCategory(Category category, long homeworkId) {
+    private void addCategory(Category category, long homeworkId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -157,8 +159,107 @@ public class HomeworkDbManager {
         db.insert(ItemEntry.TABLE_NAME, null, values);
     }
 
+    public void deleteHomework(Homework homework) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String selection = HomeworkEntry._ID + " LIKE ?";
+        String[] selectionArgs = { String.valueOf(homework.getId()) };
+
+        db.delete(HomeworkEntry.TABLE_NAME, selection, selectionArgs);
+
+        deleteCategories(homework.getId());
+    }
+
+    private void deleteCategories(long homeworkId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String[] projection = { CategoryEntry._ID };
+
+        String selection = CategoryEntry.COLUMN_NAME_HOMEWORK_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(homeworkId) };
+
+        Cursor cursor = db.query(
+                CategoryEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        while (cursor.moveToNext()) {
+            deleteItems(cursor.getLong(
+                    cursor.getColumnIndexOrThrow(CategoryEntry._ID)));
+        }
+        cursor.close();
+
+        selection = CategoryEntry.COLUMN_NAME_HOMEWORK_ID + " LIKE ?";
+        selectionArgs[0] = String.valueOf(homeworkId);
+
+        db.delete(CategoryEntry.TABLE_NAME, selection, selectionArgs);
+
+    }
+
+    private void deleteItems(long categoryId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String selection = ItemEntry.COLUMN_NAME_CATEGORY_ID + " LIKE ?";
+        String[] selectionArgs = { String.valueOf(categoryId) };
+
+        db.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
+    }
+
+    public void deleteItem(Item item) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String selection = ItemEntry._ID + " LIKE ?";
+        String[] selectionArgs = { String.valueOf(item.getId()) };
+
+        db.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
+    }
+
+    public void deleteCategory(Category category) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        deleteItems(category.getId());
+
+        String selection = CategoryEntry._ID + " LIKE ?";
+        String[] selectionArgs = { String.valueOf(category.getId()) };
+
+        db.delete(CategoryEntry.TABLE_NAME, selection, selectionArgs);
+    }
+
     public void close() {
         dbHelper.close();
+    }
+
+    public void updateHomework(Homework homework) {
+        if (homework.getId() == -1) {
+            addHomework(homework);
+        } else {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+            values.put(HomeworkEntry.COLUMN_NAME_SUBJECT, homework.getSubject());
+            values.put(HomeworkEntry.COLUMN_NAME_DATE, homework.getDate().getTime());
+
+            String selection = HomeworkEntry._ID + " LIKE ?";
+            String[] selectionArgs = { String.valueOf(homework.getId()) };
+
+            db.update(HomeworkEntry.TABLE_NAME, values, selection, selectionArgs);
+
+            for (Category category : homework.getCategoryList()) {
+                if (category.getId() != -1) {
+                    for (Item item : category.getItemList())
+                        if (item.getId() == -1)
+                            addItem(item, category.getId());
+                } else {
+                    addCategory(category, homework.getId());
+                }
+            }
+
+        }
     }
 
 

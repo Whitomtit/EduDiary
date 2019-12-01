@@ -1,31 +1,40 @@
 package com.example.myapplication.object;
 
+import com.example.myapplication.utils.Utils;
+
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class Homework {
+public class Homework implements Serializable {
+    private long id = -1;
     private String subject;
     private Date date;
     private List<Category> categoryList;
 
-    public Homework(String subject, Date date, List<Category> groupList) {
+    public Homework(String subject, Date date, List<Category> groupList, long id) {
         this.subject = subject;
         this.date = date;
         this.categoryList = groupList;
+        this.id = id;
     }
 
     public Homework() {
-        this.subject = null;
-        this.date = null;
+        this.categoryList = new ArrayList<>();
+    }
+
+    public Homework(Homework homework) {
+        this.subject = homework.subject;
+        this.date = homework.date;
+        this.id = homework.id;
         this.categoryList = new ArrayList<>();
     }
 
     public String getDateAsString() {
-        SimpleDateFormat format = new SimpleDateFormat("EEE, d MMM", new Locale("en", "UK"));
-        return format.format(this.date);
+        return Utils.dateToString(this.date);
     }
 
     public void setSubject(String subject) {
@@ -59,4 +68,9 @@ public class Homework {
     public Date getDate() {
         return this.date;
     }
+
+    public long getId() {
+        return this.id;
+    }
+
 }
