@@ -8,4 +8,5 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="add_category_hint">Page number, book, etc</string>
+    <string name="subject_icon">Subject Icon</string>
 </resources>

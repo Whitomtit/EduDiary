@@ -64,7 +64,7 @@ public class EditActivity extends AppCompatActivity {
 
         homework = new Homework();
         Intent intent = getIntent();
-        setData((Homework) intent.getSerializableExtra("homework"));
+        setData((Homework) intent.getSerializableExtra("homeworkRecycler"));
 
         String[] SUBJECTS = new String[] {"Law", "Sport", "Literature", "Physics", "Chemistry",
             "Biology", "Programming", "Robophysics", "English", "Math"};
@@ -152,7 +152,8 @@ public class EditActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 InputMethodManager inputMethodManager = (InputMethodManager) EditActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
-                                inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+                                if (inputMethodManager != null)
+                                    inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
                             }
                         });
                     }
@@ -264,7 +265,8 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private Category addCategory(String name) {
-        final TextInputLayout categoryView = (TextInputLayout) getLayoutInflater().inflate(R.layout.edit_category_entry, null);
+        final TextInputLayout categoryView = (TextInputLayout) getLayoutInflater().
+                inflate(R.layout.edit_category_entry, categoryList, false);
         final Category category = new Category(name, (ChipGroup) categoryView.getChildAt(1), categoryView);
 
         categoryView.setHint(category.getName());
@@ -297,7 +299,8 @@ public class EditActivity extends AppCompatActivity {
         return category;
     }
     private void addItem(final Item item, final Category category) {
-        final Chip itemView = (Chip) getLayoutInflater().inflate(R.layout.edit_category_chip, null);
+        final Chip itemView = (Chip) getLayoutInflater().inflate(R.layout.edit_category_chip,
+                category.getItemBox(), false);
 
         itemView.setText(item.getContent());
         itemView.setChecked(item.isDone());

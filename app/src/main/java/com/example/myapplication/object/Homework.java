@@ -3,11 +3,9 @@ package com.example.myapplication.object;
 import com.example.myapplication.utils.Utils;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class Homework implements Serializable {
     private long id = -1;

@@ -26,8 +26,8 @@ public class Item implements Serializable {
         return content;
     }
 
-    public void toggle() {
-        this.isDone = !isDone;
+    public void setDone(boolean isDone) {
+        this.isDone = isDone;
     }
 
     public long getId() {

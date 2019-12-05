@@ -262,6 +262,20 @@ public class HomeworkDbManager {
         }
     }
 
+    public void updateItem(Item item) {
+        if (item.getId() == -1)
+            return;
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(ItemEntry.COLUMN_NAME_IS_DONE, item.isDone());
+
+        String selection = ItemEntry._ID + " LIKE ?";
+        String[] selectionArgs = { String.valueOf(item.getId()) };
+
+        db.update(ItemEntry.TABLE_NAME, values, selection, selectionArgs);
+    }
+
 
     private static class HomeworkEntry implements BaseColumns {
         private static final String TABLE_NAME = "homework_entry";

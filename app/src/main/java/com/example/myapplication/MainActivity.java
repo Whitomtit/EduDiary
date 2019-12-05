@@ -15,23 +15,23 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView homework;
+    RecyclerView homeworkRecycler;
     FloatingActionButton actionButton;
-    HomeworkDbManager db;
+    HomeworkDbManager dbManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        db = new HomeworkDbManager(this);
+        dbManager = new HomeworkDbManager(this);
 
-        homework = findViewById(R.id.listViewHomework);
+        homeworkRecycler = findViewById(R.id.listViewHomework);
         actionButton = findViewById(R.id.fab);
 
-        homework.setHasFixedSize(true);
-        homework.setLayoutManager(new LinearLayoutManager(this));
-        homework.setAdapter(new HomeworkAdapter(this, db.getAllHomework(), db));
+        homeworkRecycler.setHasFixedSize(true);
+        homeworkRecycler.setLayoutManager(new LinearLayoutManager(this));
+        homeworkRecycler.setAdapter(new HomeworkAdapter(this, dbManager.getAllHomework(), dbManager));
 
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,14 +46,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            homework.setAdapter(new HomeworkAdapter(this, db.getAllHomework(), db));
+            homeworkRecycler.setAdapter(new HomeworkAdapter(this, dbManager.getAllHomework(), dbManager));
         }
 
     }
 
     @Override
     protected void onDestroy() {
-        db.close();
+        dbManager.close();
         super.onDestroy();
     }
 

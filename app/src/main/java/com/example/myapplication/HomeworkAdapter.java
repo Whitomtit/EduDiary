@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -30,7 +31,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
     private List<Homework> homeworkList;
     private Context context;
 
-    public HomeworkAdapter(Context context, List<Homework> homeworkList, HomeworkDbManager dbManager) {
+    HomeworkAdapter(Context context, List<Homework> homeworkList, HomeworkDbManager dbManager) {
         this.context = context;
         this.homeworkList = homeworkList;
         this.dbManager = dbManager;
@@ -47,30 +48,37 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
     public void onBindViewHolder(final HomeworkHolder holder, final int position) {
         final Homework homework = homeworkList.get(position);
         holder.subjectName.setText(homework.getSubject());
-        holder.deadlineDate.setText(homework.getDateAsString());
-        if (holder.groupHolders.size() == 0) {
+        holder.date.setText(homework.getDateAsString());
+        if (holder.categoryHolders.size() == 0) {
             for (Category itemGroup : homework.getCategoryList()) {
                 View groupView = LayoutInflater.from(holder.groupData.getContext()).inflate(R.layout.homework_group,
-                        holder.groupData, true);
+                        holder.groupData, false);
 
-                GroupHolder group = new GroupHolder(groupView, position);
+                CategoryHolder group = new CategoryHolder(groupView);
                 group.groupName.setText(itemGroup.getName());
 
-                for (Item item : itemGroup.getItemList()) {
-                    Chip chip = LayoutInflater.from(groupView.getContext())
-                            .inflate(R.layout.item_chip, group.chipGroup, true).findViewById(R.id.chip);
+                for (final Item item : itemGroup.getItemList()) {
+                    Chip chip = (Chip) LayoutInflater.from(groupView.getContext())
+                            .inflate(R.layout.item_chip, group.chipGroup, false);
                     chip.setChecked(item.isDone());
                     chip.setText(item.getContent());
-                    group.addChip(chip, position);
+                    chip.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                            item.setDone(checked);
+                            dbManager.updateItem(item);
+                        }
+                    });
+                    group.chipGroup.addView(chip);
                 }
-
+                holder.groupData.addView(groupView);
                 holder.addGroupHolder(group);
             }
         }
         holder.card.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                PopupMenu menu = Utils.showMenu(holder.deadlineDate);
+                PopupMenu menu = Utils.showMenu(holder.date);
                 menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
@@ -83,7 +91,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
                                 return true;
                             case R.id.menu_edit:
                                 Intent intent = new Intent(context, EditActivity.class);
-                                intent.putExtra("homework", homework);
+                                intent.putExtra("homeworkRecycler", homework);
                                 ((Activity)context).startActivityForResult(intent, 2);
                                 return true;
                             default:
@@ -101,42 +109,33 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
         return homeworkList.size();
     }
 
-    public static class HomeworkHolder extends RecyclerView.ViewHolder {
+    static class HomeworkHolder extends RecyclerView.ViewHolder {
         private MaterialCardView card;
         private TextView subjectName;
-        private TextView deadlineDate;
+        private TextView date;
         private LinearLayout groupData;
-        private List<GroupHolder> groupHolders;
+        private List<CategoryHolder> categoryHolders;
 
         private HomeworkHolder(View v) {
             super(v);
             card = v.findViewById(R.id.card);
             subjectName = card.findViewById(R.id.subjectName);
-            deadlineDate = card.findViewById(R.id.deadlineDate);
+            date = card.findViewById(R.id.deadlineDate);
             groupData = card.findViewById(R.id.groupData);
-            groupHolders = new ArrayList<>();
+            categoryHolders = new ArrayList<>();
         }
 
-        private void addGroupHolder(GroupHolder g) {
-            groupHolders.add(g);
+        private void addGroupHolder(CategoryHolder g) {
+            categoryHolders.add(g);
         }
     }
 
-    private static class GroupHolder {
+    private static class CategoryHolder {
         private TextView groupName;
         private ChipGroup chipGroup;
-        private List<Chip> chips;
-        private GroupHolder(View v, int id) {
+        private CategoryHolder(View v) {
             groupName = v.findViewById(R.id.groupName);
-            groupName.setId(id);
             chipGroup = v.findViewById(R.id.chipsGroup);
-            chipGroup.setId(id);
-            chips = new ArrayList<>();
-        }
-
-        private void addChip(Chip c, int id) {
-            c.setId(id);
-            chips.add(c);
         }
     }
 }
