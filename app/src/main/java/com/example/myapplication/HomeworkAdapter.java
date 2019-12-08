@@ -8,16 +8,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myapplication.object.Category;
-import com.example.myapplication.object.Homework;
-import com.example.myapplication.object.Item;
+import com.example.myapplication.model.Category;
+import com.example.myapplication.model.Homework;
+import com.example.myapplication.model.Item;
+import com.example.myapplication.model.Subject;
 import com.example.myapplication.utils.HomeworkDbManager;
+import com.example.myapplication.utils.Subjects;
 import com.example.myapplication.utils.Utils;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
@@ -39,6 +42,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
 
     @Override
     public HomeworkHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        //Creates new and empty homework card
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.homework_card, parent, false);
 
         return new HomeworkHolder(v);
@@ -47,9 +51,16 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
     @Override
     public void onBindViewHolder(final HomeworkHolder holder, final int position) {
         final Homework homework = homeworkList.get(position);
+
+        //Set base homework data in the view
+        Subject subject = Subjects.getInstance().getSubjectByName(homework.getSubject());
         holder.subjectName.setText(homework.getSubject());
+        holder.image.setImageResource(subject.getImage());
+        holder.imageLayout.setBackgroundColor(subject.getColor());
         holder.date.setText(homework.getDateAsString());
+
         if (holder.categoryHolders.size() == 0) {
+            //Add all categories into the homework view
             for (Category itemGroup : homework.getCategoryList()) {
                 View groupView = LayoutInflater.from(holder.groupData.getContext()).inflate(R.layout.homework_group,
                         holder.groupData, false);
@@ -57,11 +68,13 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
                 CategoryHolder group = new CategoryHolder(groupView);
                 group.groupName.setText(itemGroup.getName());
 
+                //Add all items into categories
                 for (final Item item : itemGroup.getItemList()) {
                     Chip chip = (Chip) LayoutInflater.from(groupView.getContext())
                             .inflate(R.layout.item_chip, group.chipGroup, false);
                     chip.setChecked(item.isDone());
                     chip.setText(item.getContent());
+                    //If item's view status changed, change it also in the database
                     chip.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
@@ -75,6 +88,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
                 holder.addGroupHolder(group);
             }
         }
+        //On long click show a card menu
         holder.card.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -113,6 +127,8 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
         private MaterialCardView card;
         private TextView subjectName;
         private TextView date;
+        private ImageView image;
+        private LinearLayout imageLayout;
         private LinearLayout groupData;
         private List<CategoryHolder> categoryHolders;
 
@@ -121,6 +137,8 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
             card = v.findViewById(R.id.card);
             subjectName = card.findViewById(R.id.subjectName);
             date = card.findViewById(R.id.deadlineDate);
+            image = card.findViewById(R.id.cardImage);
+            imageLayout = (LinearLayout) image.getParent();
             groupData = card.findViewById(R.id.groupData);
             categoryHolders = new ArrayList<>();
         }

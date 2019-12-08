@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         homeworkRecycler.setLayoutManager(new LinearLayoutManager(this));
         homeworkRecycler.setAdapter(new HomeworkAdapter(this, dbManager.getAllHomework(), dbManager));
 
+        //Start activity to create a new homework
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

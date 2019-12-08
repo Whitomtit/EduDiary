@@ -1,11 +1,11 @@
-package com.example.myapplication.object;
+package com.example.myapplication.model;
 
 import java.io.Serializable;
 
 public class Item implements Serializable {
+    private long id = -1;
     private String content;
     private boolean isDone;
-    private long id = -1;
 
     public Item(String content) {
         this.content = content;
@@ -18,20 +18,20 @@ public class Item implements Serializable {
         this.isDone = isDone;
     }
 
-    public boolean isDone() {
-        return isDone;
+    public long getId() {
+        return this.id;
     }
 
     public String getContent() {
         return content;
     }
 
-    public void setDone(boolean isDone) {
-        this.isDone = isDone;
+    public boolean isDone() {
+        return isDone;
     }
 
-    public long getId() {
-        return this.id;
+    public void setDone(boolean isDone) {
+        this.isDone = isDone;
     }
 
 }

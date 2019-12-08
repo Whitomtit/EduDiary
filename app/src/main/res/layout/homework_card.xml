@@ -26,7 +26,7 @@
                     android:layout_margin="8dp"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:src="@drawable/subject_law"
+                    android:src="@drawable/subject_default"
                     android:contentDescription="@string/subject_icon"/>
             </LinearLayout>
 

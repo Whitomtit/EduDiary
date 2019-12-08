@@ -7,9 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
-import com.example.myapplication.object.Category;
-import com.example.myapplication.object.Homework;
-import com.example.myapplication.object.Item;
+import com.example.myapplication.model.Category;
+import com.example.myapplication.model.Homework;
+import com.example.myapplication.model.Item;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,6 +26,7 @@ public class HomeworkDbManager {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ArrayList<Homework> homeworkList = new ArrayList<>();
 
+        //Sort by date
         String sortOrder = HomeworkEntry.COLUMN_NAME_DATE + " ASC";
         Cursor cursor = db.query(
                 HomeworkEntry.TABLE_NAME,
@@ -36,6 +37,7 @@ public class HomeworkDbManager {
                 null,
                 sortOrder
         );
+
         while (cursor.moveToNext()) {
             String subject = cursor.getString(
                     cursor.getColumnIndexOrThrow(HomeworkEntry.COLUMN_NAME_SUBJECT));
@@ -230,11 +232,8 @@ public class HomeworkDbManager {
         db.delete(CategoryEntry.TABLE_NAME, selection, selectionArgs);
     }
 
-    public void close() {
-        dbHelper.close();
-    }
-
     public void updateHomework(Homework homework) {
+        //if id isn't set, there isn't that homework in database, need to add
         if (homework.getId() == -1) {
             addHomework(homework);
         } else {
@@ -274,6 +273,10 @@ public class HomeworkDbManager {
         String[] selectionArgs = { String.valueOf(item.getId()) };
 
         db.update(ItemEntry.TABLE_NAME, values, selection, selectionArgs);
+    }
+
+    public void close() {
+        dbHelper.close();
     }
 
 

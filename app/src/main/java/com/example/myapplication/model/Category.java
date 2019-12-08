@@ -1,4 +1,4 @@
-package com.example.myapplication.object;
+package com.example.myapplication.model;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,13 +22,13 @@ public class Category implements Serializable {
 
     public Category(String name, ViewGroup itemBox, View categoryView) {
         this.name = name;
-        this.itemList = new ArrayList<>();
         this.itemBox = itemBox;
         this.view = categoryView;
+        this.itemList = new ArrayList<>();
     }
 
-    public void addItem(Item item) {
-        itemList.add(item);
+    public long getId() {
+        return this.id;
     }
 
     public String getName() {
@@ -39,12 +39,20 @@ public class Category implements Serializable {
         return itemList;
     }
 
+    public View getView() {
+        return view;
+    }
+
     public ViewGroup getItemBox() {
         return itemBox;
     }
 
-    public View getView() {
-        return view;
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void addItem(Item item) {
+        itemList.add(item);
     }
 
     public void removeItem(Item item) {
@@ -53,13 +61,5 @@ public class Category implements Serializable {
 
     public boolean isEmpty() {
         return itemList.isEmpty();
-    }
-
-    public long getId() {
-        return this.id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 }

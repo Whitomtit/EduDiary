@@ -23,10 +23,11 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.myapplication.object.Category;
-import com.example.myapplication.object.Homework;
-import com.example.myapplication.object.Item;
+import com.example.myapplication.model.Category;
+import com.example.myapplication.model.Homework;
+import com.example.myapplication.model.Item;
 import com.example.myapplication.utils.HomeworkDbManager;
+import com.example.myapplication.utils.Subjects;
 import com.example.myapplication.utils.Utils;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -62,20 +63,19 @@ public class EditActivity extends AppCompatActivity {
         buttonSave = findViewById(R.id.edit_button_save);
         buttonCancel = findViewById(R.id.edit_button_cancel);
 
-        homework = new Homework();
+        //if the activity was started with code 2, there need to be a homework in intent
         Intent intent = getIntent();
         setData((Homework) intent.getSerializableExtra("homeworkRecycler"));
 
-        String[] SUBJECTS = new String[] {"Law", "Sport", "Literature", "Physics", "Chemistry",
-            "Biology", "Programming", "Robophysics", "English", "Math"};
-
+        //Adapter with subjects' names for a dropdown menu
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(
                         this,
                         R.layout.edit_dropdown_menu_subjects,
-                        SUBJECTS);
+                        Subjects.getInstance().getSubjectsName());
         subjectPicker.setAdapter(adapter);
 
+        //User is editing the subject name, there isn't need in the error message
         subjectPicker.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
@@ -83,6 +83,7 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+        //If user press the date picker, a date picker dialog starts
         datePicker.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
@@ -101,10 +102,13 @@ public class EditActivity extends AppCompatActivity {
                             }
                         }, year, month, day);
                 picker.show();
+                //Date set, there's no need in the error message
                 Utils.getLayoutFromEditText(datePicker).setErrorEnabled(false);
 
             }
         });
+
+        //if user press an action button in the date picker and there's not any category's input it will create the first
         datePicker.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
@@ -117,10 +121,11 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
-
+        //if user press the fab, a new category will be created
         fabAddCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //creates a dialog to enter category name
                 final EditText input = new EditText(EditActivity.this);
                 input.setSingleLine();
                 input.setHint(getString(R.string.add_category_hint));
@@ -129,14 +134,14 @@ public class EditActivity extends AppCompatActivity {
                 title.setText(getString(R.string.add_category_title));
                 final AlertDialog dialog = new MaterialAlertDialogBuilder(EditActivity.this)
                         .setTitle(R.string.add_category_title)
-                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 Category category = addCategory(input.getText().toString());
                                 Utils.getEditTextFromLayout((TextInputLayout) category.getView()).requestFocus();
                             }
                         })
-                        .setNegativeButton("Cancel", null)
+                        .setNegativeButton(getString(R.string.cancel), null)
                         .setView(input,
                                 Utils.convertPixelsToDp(256, EditActivity.this),
                                 0,
@@ -144,7 +149,8 @@ public class EditActivity extends AppCompatActivity {
                                 0)
                         .create();
                 dialog.show();
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+                //calls to a keyboard be started
                 input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
@@ -160,6 +166,8 @@ public class EditActivity extends AppCompatActivity {
                 });
                 input.requestFocus();
 
+                //if the input is empty there is not a positive button (save)
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                 input.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -177,6 +185,7 @@ public class EditActivity extends AppCompatActivity {
                     }
                 });
 
+                //prevent pressing an action button to save the category without name
                 input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                     @Override
                     public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
@@ -190,34 +199,36 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+        //if all inputs are filled properly, save the homework to database and return to the previous activity
+        //else show all errors
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 boolean error = false;
                 if (subjectPicker.getText().toString().isEmpty()) {
-                    Utils.getLayoutFromEditText(subjectPicker).setError("*Required");
+                    Utils.getLayoutFromEditText(subjectPicker).setError(getString(R.string.error_required));
                     error = true;
                 } else {
                     homework.setSubject(subjectPicker.getText().toString());
                 }
                 if (datePicker.getText().toString().isEmpty()) {
-                    Utils.getLayoutFromEditText(datePicker).setError("*Required");
+                    Utils.getLayoutFromEditText(datePicker).setError(getString(R.string.error_required));
                     error = true;
                 } else {
                     try {
                         homework.setDate(Utils.dateFromString(datePicker.getText().toString()));
                     } catch (ParseException e) {
-                        Utils.getLayoutFromEditText(datePicker).setError("Incorrect date format");
+                        Utils.getLayoutFromEditText(datePicker).setError(getString(R.string.error_date_format));
                         error = true;
                     }
                 }
                 if (homework.isEmpty()) {
-                    Snackbar.make(fabAddCategory, "Add at least one category", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(fabAddCategory, getString(R.string.error_no_categories), Snackbar.LENGTH_SHORT).show();
                     error = true;
                 } else {
                     for (Category category : homework.getCategoryList()) {
                         if (category.isEmpty()) {
-                            ((TextInputLayout)category.getView()).setError("Add at least one item to category");
+                            ((TextInputLayout)category.getView()).setError(getString(R.string.error_empty_category));
                             error = true;
                         }
                     }
@@ -233,6 +244,7 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+        //If cancel button pressed, finish activity and return to previous
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -242,8 +254,18 @@ public class EditActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        db.close();
+        super.onDestroy();
+    }
+
+    //Generates and fills view according to homework object
     private void setData(Homework homework) {
-        if (homework == null) return;
+        if (homework == null) {
+            this.homework = new Homework();
+            return;
+        }
         this.homework = new Homework(homework);
 
         subjectPicker.setText(homework.getSubject());
@@ -251,17 +273,12 @@ public class EditActivity extends AppCompatActivity {
 
         for (Category category : homework.getCategoryList()) {
             Category activityCategory = addCategory(category.getName());
+            //Set id to indicate that object exists in database
             activityCategory.setId(category.getId());
             for (Item item : category.getItemList())
                 addItem(item, activityCategory);
         }
 
-    }
-
-    @Override
-    protected void onDestroy() {
-        db.close();
-        super.onDestroy();
     }
 
     private Category addCategory(String name) {
@@ -270,23 +287,29 @@ public class EditActivity extends AppCompatActivity {
         final Category category = new Category(name, (ChipGroup) categoryView.getChildAt(1), categoryView);
 
         categoryView.setHint(category.getName());
+        //If end icon clicked category needs to be deleted
         categoryView.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //if category also exists in database - delete it from there
                 if (category.getId() != -1) db.deleteCategory(category);
                 homework.removeCategory(category);
                 categoryList.removeView(categoryView);
             }
         });
 
-
+        //If user press action button (sent or enter) text from editor is added to chip
         Utils.getEditTextFromLayout(categoryView).setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (!v.getText().toString().trim().isEmpty()) {
                     addItem(v, category);
+                    v.setText("");
+
                     handled = true;
+
+                    //Item was added, so there's no need in error message
                     categoryView.setErrorEnabled(false);
                 }
                 return handled;
@@ -304,9 +327,11 @@ public class EditActivity extends AppCompatActivity {
 
         itemView.setText(item.getContent());
         itemView.setChecked(item.isDone());
+        //If end icon clicked item needs to be deleted
         itemView.setOnCloseIconClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //if item also exists in database - delete it from there
                 if (item.getId() != -1) db.deleteItem(item);
                 category.getItemBox().removeView(itemView);
                 category.removeItem(item);
@@ -321,6 +346,5 @@ public class EditActivity extends AppCompatActivity {
     private void addItem(TextView v, final Category category) {
         Item item = new Item(v.getText().toString());
         addItem(item, category);
-        v.setText("");
     }
 }

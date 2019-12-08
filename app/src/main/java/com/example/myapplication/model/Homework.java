@@ -1,4 +1,4 @@
-package com.example.myapplication.object;
+package com.example.myapplication.model;
 
 import com.example.myapplication.utils.Utils;
 
@@ -13,15 +13,15 @@ public class Homework implements Serializable {
     private Date date;
     private List<Category> categoryList;
 
+    public Homework() {
+        this.categoryList = new ArrayList<>();
+    }
+
     public Homework(String subject, Date date, List<Category> groupList, long id) {
         this.subject = subject;
         this.date = date;
         this.categoryList = groupList;
         this.id = id;
-    }
-
-    public Homework() {
-        this.categoryList = new ArrayList<>();
     }
 
     public Homework(Homework homework) {
@@ -31,8 +31,24 @@ public class Homework implements Serializable {
         this.categoryList = new ArrayList<>();
     }
 
+    public long getId() {
+        return this.id;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public Date getDate() {
+        return this.date;
+    }
+
     public String getDateAsString() {
         return Utils.dateToString(this.date);
+    }
+
+    public List<Category> getCategoryList() {
+        return categoryList;
     }
 
     public void setSubject(String subject) {
@@ -41,14 +57,6 @@ public class Homework implements Serializable {
 
     public void setDate(Date date) {
         this.date = date;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public List<Category> getCategoryList() {
-        return categoryList;
     }
 
     public void addCategory(Category category) {
@@ -61,14 +69,6 @@ public class Homework implements Serializable {
 
     public boolean isEmpty() {
         return categoryList.isEmpty();
-    }
-
-    public Date getDate() {
-        return this.date;
-    }
-
-    public long getId() {
-        return this.id;
     }
 
 }
