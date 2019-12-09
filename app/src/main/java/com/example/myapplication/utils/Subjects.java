@@ -20,7 +20,7 @@ public class Subjects {
         subjects.add(new Subject("Physics", "#7100F7", R.drawable.subject_physics));
         subjects.add(new Subject("Chemistry", "#64DD17", R.drawable.subject_chemistry));
         subjects.add(new Subject("Biology", "#43A047", R.drawable.subject_biology));
-        subjects.add(new Subject("Programming", "FDD835", R.drawable.subject_programming));
+        subjects.add(new Subject("Programming", "#FDD835", R.drawable.subject_programming));
         subjects.add(new Subject("Robotics", "#FB8C00", R.drawable.subject_robotics));
         subjects.add(new Subject("English", "#3949AB", R.drawable.subject_english));
         subjects.add(new Subject("Math", "#F50057", R.drawable.subject_math));
