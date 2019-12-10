@@ -1,4 +1,4 @@
-package com.example.myapplication.utils;
+package com.example.myapplication.util;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -212,53 +212,12 @@ public class HomeworkDbManager {
         db.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
     }
 
-    public void deleteItem(Item item) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        String selection = ItemEntry._ID + " LIKE ?";
-        String[] selectionArgs = { String.valueOf(item.getId()) };
-
-        db.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
-    }
-
-    public void deleteCategory(Category category) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        deleteItems(category.getId());
-
-        String selection = CategoryEntry._ID + " LIKE ?";
-        String[] selectionArgs = { String.valueOf(category.getId()) };
-
-        db.delete(CategoryEntry.TABLE_NAME, selection, selectionArgs);
-    }
-
     public void updateHomework(Homework homework) {
-        //if id isn't set, there isn't that homework in database, need to add
-        if (homework.getId() == -1) {
-            addHomework(homework);
-        } else {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-            ContentValues values = new ContentValues();
-            values.put(HomeworkEntry.COLUMN_NAME_SUBJECT, homework.getSubject());
-            values.put(HomeworkEntry.COLUMN_NAME_DATE, homework.getDate().getTime());
-
-            String selection = HomeworkEntry._ID + " LIKE ?";
-            String[] selectionArgs = { String.valueOf(homework.getId()) };
-
-            db.update(HomeworkEntry.TABLE_NAME, values, selection, selectionArgs);
-
-            for (Category category : homework.getCategoryList()) {
-                if (category.getId() != -1) {
-                    for (Item item : category.getItemList())
-                        if (item.getId() == -1)
-                            addItem(item, category.getId());
-                } else {
-                    addCategory(category, homework.getId());
-                }
-            }
-
+        //if homework was previously in database - delete it
+        if (homework.getId() != -1) {
+            deleteHomework(homework);
         }
+        addHomework(homework);
     }
 
     public void updateItem(Item item) {

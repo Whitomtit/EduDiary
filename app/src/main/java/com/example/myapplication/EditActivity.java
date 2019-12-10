@@ -26,9 +26,9 @@ import android.widget.TextView;
 import com.example.myapplication.model.Category;
 import com.example.myapplication.model.Homework;
 import com.example.myapplication.model.Item;
-import com.example.myapplication.utils.HomeworkDbManager;
-import com.example.myapplication.utils.Subjects;
-import com.example.myapplication.utils.Utils;
+import com.example.myapplication.util.HomeworkDbManager;
+import com.example.myapplication.util.Subjects;
+import com.example.myapplication.util.Utils;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -273,8 +273,6 @@ public class EditActivity extends AppCompatActivity {
 
         for (Category category : homework.getCategoryList()) {
             Category activityCategory = addCategory(category.getName());
-            //Set id to indicate that object exists in database
-            activityCategory.setId(category.getId());
             for (Item item : category.getItemList())
                 addItem(item, activityCategory);
         }
@@ -291,8 +289,6 @@ public class EditActivity extends AppCompatActivity {
         categoryView.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //if category also exists in database - delete it from there
-                if (category.getId() != -1) db.deleteCategory(category);
                 homework.removeCategory(category);
                 categoryList.removeView(categoryView);
             }
@@ -331,8 +327,6 @@ public class EditActivity extends AppCompatActivity {
         itemView.setOnCloseIconClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //if item also exists in database - delete it from there
-                if (item.getId() != -1) db.deleteItem(item);
                 category.getItemBox().removeView(itemView);
                 category.removeItem(item);
             }

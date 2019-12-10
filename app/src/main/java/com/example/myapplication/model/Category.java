@@ -47,10 +47,6 @@ public class Category implements Serializable {
         return itemBox;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public void addItem(Item item) {
         itemList.add(item);
     }

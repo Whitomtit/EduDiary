@@ -1,4 +1,4 @@
-package com.example.myapplication.utils;
+package com.example.myapplication.util;
 
 import com.example.myapplication.R;
 import com.example.myapplication.model.Subject;

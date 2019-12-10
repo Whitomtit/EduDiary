@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.example.myapplication.utils.HomeworkDbManager;
+import com.example.myapplication.util.HomeworkDbManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 

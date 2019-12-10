@@ -1,6 +1,6 @@
 package com.example.myapplication.model;
 
-import com.example.myapplication.utils.Utils;
+import com.example.myapplication.util.Utils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
