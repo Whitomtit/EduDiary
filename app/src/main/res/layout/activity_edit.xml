@@ -73,12 +73,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="150dp">
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:layout_width="wrap_content"
+                <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton   android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    app:srcCompat="@drawable/ic_add"
+                    android:text="@string/add_category_button"
+                    app:icon="@drawable/ic_add"
                     android:id="@+id/fab_add_category"
                     android:layout_gravity="center_horizontal" />
             </androidx.coordinatorlayout.widget.CoordinatorLayout>

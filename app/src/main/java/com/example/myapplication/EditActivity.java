@@ -32,7 +32,7 @@ import com.example.myapplication.util.Utils;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -43,7 +43,7 @@ import java.util.Calendar;
 public class EditActivity extends AppCompatActivity {
     AutoCompleteTextView subjectPicker;
     TextInputEditText datePicker;
-    FloatingActionButton fabAddCategory;
+    ExtendedFloatingActionButton fabAddCategory;
     Homework homework;
     LinearLayout categoryList;
     Button buttonSave, buttonCancel;

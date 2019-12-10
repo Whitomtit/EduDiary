@@ -43,7 +43,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
     @Override
     public HomeworkHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         //Creates new and empty homework card
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.homework_card, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_homework_card, parent, false);
 
         return new HomeworkHolder(v);
     }
@@ -62,7 +62,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
         if (holder.categoryHolders.size() == 0) {
             //Add all categories into the homework view
             for (Category itemGroup : homework.getCategoryList()) {
-                View groupView = LayoutInflater.from(holder.groupData.getContext()).inflate(R.layout.homework_group,
+                View groupView = LayoutInflater.from(holder.groupData.getContext()).inflate(R.layout.main_homework_category,
                         holder.groupData, false);
 
                 CategoryHolder group = new CategoryHolder(groupView);
@@ -71,7 +71,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
                 //Add all items into categories
                 for (final Item item : itemGroup.getItemList()) {
                     Chip chip = (Chip) LayoutInflater.from(groupView.getContext())
-                            .inflate(R.layout.item_chip, group.chipGroup, false);
+                            .inflate(R.layout.main_homework_item, group.chipGroup, false);
                     chip.setChecked(item.isDone());
                     chip.setText(item.getContent());
                     //If item's view status changed, change it also in the database
