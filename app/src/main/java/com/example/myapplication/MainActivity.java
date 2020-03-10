@@ -9,31 +9,31 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.example.myapplication.util.HomeworkDbManager;
+import com.example.myapplication.util.RecordDbManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView homeworkRecycler;
+    RecyclerView recordRecycler;
     FloatingActionButton actionButton;
-    HomeworkDbManager dbManager;
+    RecordDbManager dbManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dbManager = new HomeworkDbManager(this);
+        dbManager = new RecordDbManager(this);
 
-        homeworkRecycler = findViewById(R.id.listViewHomework);
+        recordRecycler = findViewById(R.id.recyclerview_records);
         actionButton = findViewById(R.id.fab);
 
-        homeworkRecycler.setHasFixedSize(true);
-        homeworkRecycler.setLayoutManager(new LinearLayoutManager(this));
-        homeworkRecycler.setAdapter(new HomeworkAdapter(this, dbManager.getAllHomework(), dbManager));
+        recordRecycler.setHasFixedSize(true);
+        recordRecycler.setLayoutManager(new LinearLayoutManager(this));
+        recordRecycler.setAdapter(new RecordAdapter(this, dbManager.getAllRecords(), dbManager));
 
-        //Start activity to create a new homework
+        //Start activity to create a new record
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            homeworkRecycler.setAdapter(new HomeworkAdapter(this, dbManager.getAllHomework(), dbManager));
+            recordRecycler.setAdapter(new RecordAdapter(this, dbManager.getAllRecords(), dbManager));
         }
 
     }

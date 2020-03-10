@@ -24,9 +24,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.myapplication.model.Category;
-import com.example.myapplication.model.Homework;
+import com.example.myapplication.model.Record;
 import com.example.myapplication.model.Item;
-import com.example.myapplication.util.HomeworkDbManager;
+import com.example.myapplication.util.RecordDbManager;
 import com.example.myapplication.util.Subjects;
 import com.example.myapplication.util.Utils;
 import com.google.android.material.chip.Chip;
@@ -44,17 +44,17 @@ public class EditActivity extends AppCompatActivity {
     AutoCompleteTextView subjectPicker;
     TextInputEditText datePicker;
     ExtendedFloatingActionButton fabAddCategory;
-    Homework homework;
+    Record record;
     LinearLayout categoryList;
     Button buttonSave, buttonCancel;
-    HomeworkDbManager db;
+    RecordDbManager db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
 
-        db = new HomeworkDbManager(this);
+        db = new RecordDbManager(this);
 
         fabAddCategory = findViewById(R.id.fab_add_category);
         subjectPicker = findViewById(R.id.subject_picker);
@@ -63,9 +63,9 @@ public class EditActivity extends AppCompatActivity {
         buttonSave = findViewById(R.id.edit_button_save);
         buttonCancel = findViewById(R.id.edit_button_cancel);
 
-        //if the activity was started with code 2, there need to be a homework in intent
+        //if the activity was started with code 2, there need to be a record in intent
         Intent intent = getIntent();
-        setData((Homework) intent.getSerializableExtra("homeworkRecycler"));
+        setData((Record) intent.getSerializableExtra("record"));
 
         //Adapter with subjects' names for a dropdown menu
         ArrayAdapter<String> adapter =
@@ -113,7 +113,7 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 boolean handled = false;
-                if (homework.isEmpty()) {
+                if (record.isEmpty()) {
                     fabAddCategory.performClick();
                     handled = true;
                 }
@@ -199,7 +199,7 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
-        //if all inputs are filled properly, save the homework to database and return to the previous activity
+        //if all inputs are filled properly, save the record to database and return to the previous activity
         //else show all errors
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -209,24 +209,24 @@ public class EditActivity extends AppCompatActivity {
                     Utils.getLayoutFromEditText(subjectPicker).setError(getString(R.string.error_required));
                     error = true;
                 } else {
-                    homework.setSubject(subjectPicker.getText().toString());
+                    record.setSubject(subjectPicker.getText().toString());
                 }
                 if (datePicker.getText().toString().isEmpty()) {
                     Utils.getLayoutFromEditText(datePicker).setError(getString(R.string.error_required));
                     error = true;
                 } else {
                     try {
-                        homework.setDate(Utils.dateFromString(datePicker.getText().toString()));
+                        record.setDate(Utils.dateFromString(datePicker.getText().toString()));
                     } catch (ParseException e) {
                         Utils.getLayoutFromEditText(datePicker).setError(getString(R.string.error_date_format));
                         error = true;
                     }
                 }
-                if (homework.isEmpty()) {
+                if (record.isEmpty()) {
                     Snackbar.make(fabAddCategory, getString(R.string.error_no_categories), Snackbar.LENGTH_SHORT).show();
                     error = true;
                 } else {
-                    for (Category category : homework.getCategoryList()) {
+                    for (Category category : record.getCategoryList()) {
                         if (category.isEmpty()) {
                             ((TextInputLayout)category.getView()).setError(getString(R.string.error_empty_category));
                             error = true;
@@ -236,7 +236,7 @@ public class EditActivity extends AppCompatActivity {
 
                 if (error) return;
 
-                db.updateHomework(homework);
+                db.updateRecord(record);
 
                 setResult(Activity.RESULT_OK);
                 finish();
@@ -260,18 +260,18 @@ public class EditActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    //Generates and fills view according to homework object
-    private void setData(Homework homework) {
-        if (homework == null) {
-            this.homework = new Homework();
+    //Generates and fills view according to record object
+    private void setData(Record record) {
+        if (record == null) {
+            this.record = new Record();
             return;
         }
-        this.homework = new Homework(homework);
+        this.record = new Record(record);
 
-        subjectPicker.setText(homework.getSubject());
-        datePicker.setText(homework.getDateAsString());
+        subjectPicker.setText(record.getSubject());
+        datePicker.setText(record.getDateAsString());
 
-        for (Category category : homework.getCategoryList()) {
+        for (Category category : record.getCategoryList()) {
             Category activityCategory = addCategory(category.getName());
             for (Item item : category.getItemList())
                 addItem(item, activityCategory);
@@ -289,7 +289,7 @@ public class EditActivity extends AppCompatActivity {
         categoryView.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                homework.removeCategory(category);
+                record.removeCategory(category);
                 categoryList.removeView(categoryView);
             }
         });
@@ -313,7 +313,7 @@ public class EditActivity extends AppCompatActivity {
         });
 
         categoryList.addView(categoryView);
-        homework.addCategory(category);
+        record.addCategory(category);
 
         return category;
     }

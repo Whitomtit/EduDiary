@@ -8,28 +8,28 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
 import com.example.myapplication.model.Category;
-import com.example.myapplication.model.Homework;
+import com.example.myapplication.model.Record;
 import com.example.myapplication.model.Item;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class HomeworkDbManager {
-    private HomeworkDbHelper dbHelper;
+public class RecordDbManager {
+    private RecordDbHelper dbHelper;
 
-    public HomeworkDbManager(Context context) {
-        this.dbHelper = new HomeworkDbHelper(context);
+    public RecordDbManager(Context context) {
+        this.dbHelper = new RecordDbHelper(context);
     }
 
-    public List<Homework> getAllHomework() {
+    public List<Record> getAllRecords() {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        ArrayList<Homework> homeworkList = new ArrayList<>();
+        ArrayList<Record> recordList = new ArrayList<>();
 
         //Sort by date
-        String sortOrder = HomeworkEntry.COLUMN_NAME_DATE + " ASC";
+        String sortOrder = RecordEntry.COLUMN_NAME_DATE + " ASC";
         Cursor cursor = db.query(
-                HomeworkEntry.TABLE_NAME,
+                RecordEntry.TABLE_NAME,
                 null,
                 null,
                 null,
@@ -40,18 +40,18 @@ public class HomeworkDbManager {
 
         while (cursor.moveToNext()) {
             String subject = cursor.getString(
-                    cursor.getColumnIndexOrThrow(HomeworkEntry.COLUMN_NAME_SUBJECT));
+                    cursor.getColumnIndexOrThrow(RecordEntry.COLUMN_NAME_SUBJECT));
             Date date = new Date(cursor.getLong(
-                    cursor.getColumnIndexOrThrow(HomeworkEntry.COLUMN_NAME_DATE)));
-            long homeworkId = cursor.getLong(
-                    cursor.getColumnIndexOrThrow(HomeworkEntry._ID));
-            homeworkList.add(new Homework(subject, date, getCategoriesByHomeworkId(homeworkId), homeworkId));
+                    cursor.getColumnIndexOrThrow(RecordEntry.COLUMN_NAME_DATE)));
+            long recordId = cursor.getLong(
+                    cursor.getColumnIndexOrThrow(RecordEntry._ID));
+            recordList.add(new Record(subject, date, getCategoriesByRecordId(recordId), recordId));
         }
         cursor.close();
-        return homeworkList;
+        return recordList;
     }
 
-    private List<Category> getCategoriesByHomeworkId(long homeworkId) {
+    private List<Category> getCategoriesByRecordId(long recordId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         ArrayList<Category> categoryList = new ArrayList<>();
 
@@ -60,8 +60,8 @@ public class HomeworkDbManager {
                 CategoryEntry.COLUMN_NAME_NAME
         };
 
-        String selection = CategoryEntry.COLUMN_NAME_HOMEWORK_ID + " = ?";
-        String[] selectionArgs = { String.valueOf(homeworkId) };
+        String selection = CategoryEntry.COLUMN_NAME_RECORD_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(recordId) };
 
         Cursor cursor = db.query(
                 CategoryEntry.TABLE_NAME,
@@ -124,25 +124,25 @@ public class HomeworkDbManager {
         return itemList;
     }
 
-    private void addHomework(Homework homework) {
+    private void addRecord(Record record) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(HomeworkEntry.COLUMN_NAME_SUBJECT, homework.getSubject());
-        values.put(HomeworkEntry.COLUMN_NAME_DATE, homework.getDate().getTime());
+        values.put(RecordEntry.COLUMN_NAME_SUBJECT, record.getSubject());
+        values.put(RecordEntry.COLUMN_NAME_DATE, record.getDate().getTime());
 
-        long homeworkId = db.insert(HomeworkEntry.TABLE_NAME, null, values);
+        long recordId = db.insert(RecordEntry.TABLE_NAME, null, values);
 
-        for (Category category : homework.getCategoryList())
-            addCategory(category, homeworkId);
+        for (Category category : record.getCategoryList())
+            addCategory(category, recordId);
     }
 
-    private void addCategory(Category category, long homeworkId) {
+    private void addCategory(Category category, long recordId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(CategoryEntry.COLUMN_NAME_NAME, category.getName());
-        values.put(CategoryEntry.COLUMN_NAME_HOMEWORK_ID, homeworkId);
+        values.put(CategoryEntry.COLUMN_NAME_RECORD_ID, recordId);
 
         long categoryId = db.insert(CategoryEntry.TABLE_NAME, null, values);
 
@@ -161,24 +161,24 @@ public class HomeworkDbManager {
         db.insert(ItemEntry.TABLE_NAME, null, values);
     }
 
-    public void deleteHomework(Homework homework) {
+    public void deleteRecord(Record record) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        String selection = HomeworkEntry._ID + " LIKE ?";
-        String[] selectionArgs = { String.valueOf(homework.getId()) };
+        String selection = RecordEntry._ID + " LIKE ?";
+        String[] selectionArgs = { String.valueOf(record.getId()) };
 
-        db.delete(HomeworkEntry.TABLE_NAME, selection, selectionArgs);
+        db.delete(RecordEntry.TABLE_NAME, selection, selectionArgs);
 
-        deleteCategories(homework.getId());
+        deleteCategories(record.getId());
     }
 
-    private void deleteCategories(long homeworkId) {
+    private void deleteCategories(long recordId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         String[] projection = { CategoryEntry._ID };
 
-        String selection = CategoryEntry.COLUMN_NAME_HOMEWORK_ID + " = ?";
-        String[] selectionArgs = { String.valueOf(homeworkId) };
+        String selection = CategoryEntry.COLUMN_NAME_RECORD_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(recordId) };
 
         Cursor cursor = db.query(
                 CategoryEntry.TABLE_NAME,
@@ -196,8 +196,8 @@ public class HomeworkDbManager {
         }
         cursor.close();
 
-        selection = CategoryEntry.COLUMN_NAME_HOMEWORK_ID + " LIKE ?";
-        selectionArgs[0] = String.valueOf(homeworkId);
+        selection = CategoryEntry.COLUMN_NAME_RECORD_ID + " LIKE ?";
+        selectionArgs[0] = String.valueOf(recordId);
 
         db.delete(CategoryEntry.TABLE_NAME, selection, selectionArgs);
 
@@ -212,12 +212,12 @@ public class HomeworkDbManager {
         db.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
     }
 
-    public void updateHomework(Homework homework) {
-        //if homework was previously in database - delete it
-        if (homework.getId() != -1) {
-            deleteHomework(homework);
+    public void updateRecord(Record record) {
+        //if record was previously in database - delete it
+        if (record.getId() != -1) {
+            deleteRecord(record);
         }
-        addHomework(homework);
+        addRecord(record);
     }
 
     public void updateItem(Item item) {
@@ -239,8 +239,8 @@ public class HomeworkDbManager {
     }
 
 
-    private static class HomeworkEntry implements BaseColumns {
-        private static final String TABLE_NAME = "homework_entry";
+    private static class RecordEntry implements BaseColumns {
+        private static final String TABLE_NAME = "record_entry";
         private static final String COLUMN_NAME_SUBJECT = "subject";
         private static final String COLUMN_NAME_DATE = "date";
 
@@ -254,13 +254,13 @@ public class HomeworkDbManager {
     private static class CategoryEntry implements BaseColumns {
         private static final String TABLE_NAME = "category_entry";
         private static final String COLUMN_NAME_NAME = "name";
-        private static final String COLUMN_NAME_HOMEWORK_ID = "homework_id";
+        private static final String COLUMN_NAME_RECORD_ID = "record_id";
 
         private static final String SQL_CREATE_ENTRY =
                 "CREATE TABLE " + TABLE_NAME + " (" +
                         _ID + " INTEGER PRIMARY KEY," +
                         COLUMN_NAME_NAME + " TEXT," +
-                        COLUMN_NAME_HOMEWORK_ID + " INTEGER)";
+                        COLUMN_NAME_RECORD_ID + " INTEGER)";
     }
 
     private static class ItemEntry implements BaseColumns {
@@ -277,17 +277,17 @@ public class HomeworkDbManager {
                         COLUMN_NAME_CATEGORY_ID + " INTEGER)";
     }
 
-    public class HomeworkDbHelper extends SQLiteOpenHelper {
+    public class RecordDbHelper extends SQLiteOpenHelper {
         private static final int DATABASE_VERSION = 1;
-        private static final String DATABASE_NAME = "HomeworkManager.db";
+        private static final String DATABASE_NAME = "RecordManager.db";
 
-        private HomeworkDbHelper(Context context) {
+        private RecordDbHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
 
         @Override
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
-            sqLiteDatabase.execSQL(HomeworkEntry.SQL_CREATE_ENTRY);
+            sqLiteDatabase.execSQL(RecordEntry.SQL_CREATE_ENTRY);
             sqLiteDatabase.execSQL(CategoryEntry.SQL_CREATE_ENTRY);
             sqLiteDatabase.execSQL(ItemEntry.SQL_CREATE_ENTRY);
         }

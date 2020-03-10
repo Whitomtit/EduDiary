@@ -16,10 +16,10 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.model.Category;
-import com.example.myapplication.model.Homework;
+import com.example.myapplication.model.Record;
 import com.example.myapplication.model.Item;
 import com.example.myapplication.model.Subject;
-import com.example.myapplication.util.HomeworkDbManager;
+import com.example.myapplication.util.RecordDbManager;
 import com.example.myapplication.util.Subjects;
 import com.example.myapplication.util.Utils;
 import com.google.android.material.card.MaterialCardView;
@@ -29,40 +29,40 @@ import com.google.android.material.chip.ChipGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolder> {
-    private HomeworkDbManager dbManager;
-    private List<Homework> homeworkList;
+class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordHolder> {
+    private RecordDbManager dbManager;
+    private List<Record> recordList;
     private Context context;
 
-    HomeworkAdapter(Context context, List<Homework> homeworkList, HomeworkDbManager dbManager) {
+    RecordAdapter(Context context, List<Record> recordList, RecordDbManager dbManager) {
         this.context = context;
-        this.homeworkList = homeworkList;
+        this.recordList = recordList;
         this.dbManager = dbManager;
     }
 
     @Override
-    public HomeworkHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        //Creates new and empty homework card
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_homework_card, parent, false);
+    public RecordHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        //Creates new and empty record card
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_record_card, parent, false);
 
-        return new HomeworkHolder(v);
+        return new RecordHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final HomeworkHolder holder, final int position) {
-        final Homework homework = homeworkList.get(position);
+    public void onBindViewHolder(final RecordHolder holder, final int position) {
+        final Record record = recordList.get(position);
 
-        //Set base homework data in the view
-        Subject subject = Subjects.getInstance().getSubjectByName(homework.getSubject());
-        holder.subjectName.setText(homework.getSubject());
+        //Set base record data in the view
+        Subject subject = Subjects.getInstance().getSubjectByName(record.getSubject());
+        holder.subjectName.setText(record.getSubject());
         holder.image.setImageResource(subject.getImage());
         holder.imageLayout.setBackgroundColor(subject.getColor());
-        holder.date.setText(homework.getDateAsString());
+        holder.date.setText(record.getDateAsString());
 
         if (holder.categoryHolders.size() == 0) {
-            //Add all categories into the homework view
-            for (Category itemGroup : homework.getCategoryList()) {
-                View groupView = LayoutInflater.from(holder.groupData.getContext()).inflate(R.layout.main_homework_category,
+            //Add all categories into the record view
+            for (Category itemGroup : record.getCategoryList()) {
+                View groupView = LayoutInflater.from(holder.groupData.getContext()).inflate(R.layout.main_record_category,
                         holder.groupData, false);
 
                 CategoryHolder group = new CategoryHolder(groupView);
@@ -71,7 +71,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
                 //Add all items into categories
                 for (final Item item : itemGroup.getItemList()) {
                     Chip chip = (Chip) LayoutInflater.from(groupView.getContext())
-                            .inflate(R.layout.main_homework_item, group.chipGroup, false);
+                            .inflate(R.layout.main_category_item, group.chipGroup, false);
                     chip.setChecked(item.isDone());
                     chip.setText(item.getContent());
                     //If item's view status changed, change it also in the database
@@ -98,14 +98,14 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.menu_delete:
-                                dbManager.deleteHomework(homework);
-                                int position = homeworkList.indexOf(homework);
-                                homeworkList.remove(position);
+                                dbManager.deleteRecord(record);
+                                int position = recordList.indexOf(record);
+                                recordList.remove(position);
                                 notifyItemRemoved(position);
                                 return true;
                             case R.id.menu_edit:
                                 Intent intent = new Intent(context, EditActivity.class);
-                                intent.putExtra("homeworkRecycler", homework);
+                                intent.putExtra("record", record);
                                 ((Activity)context).startActivityForResult(intent, 2);
                                 return true;
                             default:
@@ -120,10 +120,10 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
 
     @Override
     public int getItemCount() {
-        return homeworkList.size();
+        return recordList.size();
     }
 
-    static class HomeworkHolder extends RecyclerView.ViewHolder {
+    static class RecordHolder extends RecyclerView.ViewHolder {
         private MaterialCardView card;
         private TextView subjectName;
         private TextView date;
@@ -132,7 +132,7 @@ class HomeworkAdapter extends RecyclerView.Adapter<HomeworkAdapter.HomeworkHolde
         private LinearLayout groupData;
         private List<CategoryHolder> categoryHolders;
 
-        private HomeworkHolder(View v) {
+        private RecordHolder(View v) {
             super(v);
             card = v.findViewById(R.id.card);
             subjectName = card.findViewById(R.id.subjectName);

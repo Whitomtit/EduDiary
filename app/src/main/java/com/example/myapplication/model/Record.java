@@ -7,27 +7,27 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Homework implements Serializable {
+public class Record implements Serializable {
     private long id = -1;
     private String subject;
     private Date date;
     private List<Category> categoryList;
 
-    public Homework() {
+    public Record() {
         this.categoryList = new ArrayList<>();
     }
 
-    public Homework(String subject, Date date, List<Category> groupList, long id) {
+    public Record(String subject, Date date, List<Category> groupList, long id) {
         this.subject = subject;
         this.date = date;
         this.categoryList = groupList;
         this.id = id;
     }
 
-    public Homework(Homework homework) {
-        this.subject = homework.subject;
-        this.date = homework.date;
-        this.id = homework.id;
+    public Record(Record record) {
+        this.subject = record.subject;
+        this.date = record.date;
+        this.id = record.id;
         this.categoryList = new ArrayList<>();
     }
 
