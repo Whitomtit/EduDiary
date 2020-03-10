@@ -71,7 +71,7 @@ public class EditActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(
                         this,
-                        R.layout.edit_dropdown_menu_subjects,
+                        R.menu.edit_dropdown_subjects_menu,
                         Subjects.getInstance().getSubjectsName());
         subjectPicker.setAdapter(adapter);
 
