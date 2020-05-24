@@ -33,11 +33,21 @@ class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordHolder> {
     private RecordDbManager dbManager;
     private List<Record> recordList;
     private Context context;
+    private ImageView noRecordsImage;
 
-    RecordAdapter(Context context, List<Record> recordList, RecordDbManager dbManager) {
+    RecordAdapter(Context context, List<Record> recordList, RecordDbManager dbManager, ImageView noRecordsImage) {
         this.context = context;
         this.recordList = recordList;
         this.dbManager = dbManager;
+        this.noRecordsImage = noRecordsImage;
+        updateImage();
+    }
+
+    private void updateImage() {
+        if (getItemCount() > 0)
+            noRecordsImage.setVisibility(View.INVISIBLE);
+        else
+            noRecordsImage.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -102,6 +112,7 @@ class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordHolder> {
                                 int position = recordList.indexOf(record);
                                 recordList.remove(position);
                                 notifyItemRemoved(position);
+                                updateImage();
                                 return true;
                             case R.id.menu_edit:
                                 Intent intent = new Intent(context, EditActivity.class);
