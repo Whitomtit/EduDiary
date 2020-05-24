@@ -22,7 +22,7 @@ public class Utils {
     //Shortcut to create a popup menu
     public static PopupMenu showMenu(View anchor) {
         PopupMenu popup = new PopupMenu(anchor.getContext(), anchor);
-        popup.getMenuInflater().inflate(R.menu.main_menu, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.card_menu, popup.getMenu());
         popup.show();
 
         return popup;

@@ -15,7 +15,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BasicActivity {
 
     RecyclerView recordRecycler;
     FloatingActionButton actionButton;

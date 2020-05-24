@@ -40,7 +40,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.text.ParseException;
 import java.util.Calendar;
 
-public class EditActivity extends AppCompatActivity {
+public class EditActivity extends BasicActivity {
     AutoCompleteTextView subjectPicker;
     TextInputEditText datePicker;
     ExtendedFloatingActionButton fabAddCategory;

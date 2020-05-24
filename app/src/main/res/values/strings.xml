@@ -15,4 +15,16 @@
     <string name="error_no_categories">Add at least one category</string>
     <string name="error_empty_category">Add at least one item to category</string>
     <string name="add_category_button">Add a category</string>
+    <string name="about">About</string>
+    <string name="help">Help</string>
+    <string name="about_content">EduDiary v1.1.7\nCreated by Whitomtit</string>
+    <string name="help_opening">EduDiary is a simple way to manage and keep track of your educational tasks.</string>
+    <string name="help_1">On the main screen you can always see a list of your tasks and their current status.</string>
+    <string name="help_2">There is a subject name and a due date on the top of each task. Also there is a set of predefined icons for many subjects.</string>
+    <string name="help_3">You can mark any sub-task done by simply clicking on it.</string>
+    <string name="help_4">You can edit or delete any task by long-tape on it.</string>
+    <string name="help_5">To create a new task tap on the button below.</string>
+    <string name="help_6">You have to choose a subject from the list or to type your own. Also you need to set a due date.</string>
+    <string name="help_7">Task is divided into categories which are divided into sub-tasks. Category can be name of a book, a page or something else.</string>
+    <string name="help_8">To enter a sub-tasks you need to press on the action button on your keyboard.</string>
 </resources>
