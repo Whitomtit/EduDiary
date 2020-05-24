@@ -1,16 +1,14 @@
-package com.example.myapplication;
+package il.whitomtit.edudiary;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.example.myapplication.util.RecordDbManager;
+import il.whitomtit.edudiary.util.RecordDbManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
@@ -50,7 +48,7 @@ public class MainActivity extends BasicActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             recordRecycler.setAdapter(new RecordAdapter(this, dbManager.getAllRecords(), dbManager, noRecordsImage));
         }
 

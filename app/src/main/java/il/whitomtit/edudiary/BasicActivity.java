@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package il.whitomtit.edudiary;
 
 import android.content.Intent;
 import android.view.Menu;

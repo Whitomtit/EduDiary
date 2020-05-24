@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package il.whitomtit.edudiary;
 
 import androidx.appcompat.app.AppCompatActivity;
 

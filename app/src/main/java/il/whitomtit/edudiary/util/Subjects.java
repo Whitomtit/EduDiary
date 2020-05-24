@@ -1,7 +1,7 @@
-package com.example.myapplication.util;
+package il.whitomtit.edudiary.util;
 
-import com.example.myapplication.R;
-import com.example.myapplication.model.Subject;
+import il.whitomtit.edudiary.R;
+import il.whitomtit.edudiary.model.Subject;
 
 import java.util.ArrayList;
 import java.util.List;

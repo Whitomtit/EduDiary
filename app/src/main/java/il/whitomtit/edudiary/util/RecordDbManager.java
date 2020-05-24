@@ -1,4 +1,4 @@
-package com.example.myapplication.util;
+package il.whitomtit.edudiary.util;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,9 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
-import com.example.myapplication.model.Category;
-import com.example.myapplication.model.Record;
-import com.example.myapplication.model.Item;
+import il.whitomtit.edudiary.model.Category;
+import il.whitomtit.edudiary.model.Record;
+import il.whitomtit.edudiary.model.Item;
 
 import java.util.ArrayList;
 import java.util.Date;

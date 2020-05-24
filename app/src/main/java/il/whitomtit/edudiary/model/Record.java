@@ -1,6 +1,6 @@
-package com.example.myapplication.model;
+package il.whitomtit.edudiary.model;
 
-import com.example.myapplication.util.Utils;
+import il.whitomtit.edudiary.util.Utils;
 
 import java.io.Serializable;
 import java.util.ArrayList;

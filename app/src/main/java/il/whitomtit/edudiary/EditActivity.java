@@ -1,11 +1,9 @@
-package com.example.myapplication;
+package il.whitomtit.edudiary;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -23,12 +21,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.myapplication.model.Category;
-import com.example.myapplication.model.Record;
-import com.example.myapplication.model.Item;
-import com.example.myapplication.util.RecordDbManager;
-import com.example.myapplication.util.Subjects;
-import com.example.myapplication.util.Utils;
+import il.whitomtit.edudiary.model.Category;
+import il.whitomtit.edudiary.model.Record;
+import il.whitomtit.edudiary.model.Item;
+import il.whitomtit.edudiary.util.RecordDbManager;
+import il.whitomtit.edudiary.util.Subjects;
+import il.whitomtit.edudiary.util.Utils;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -68,7 +66,7 @@ public class EditActivity extends BasicActivity {
         setData((Record) intent.getSerializableExtra("record"));
 
         //Adapter with subjects' names for a dropdown menu
-        ArrayAdapter<String> adapter =
+        @SuppressLint("ResourceType") ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(
                         this,
                         R.menu.edit_dropdown_subjects_menu,
@@ -132,7 +130,7 @@ public class EditActivity extends BasicActivity {
                 final TextView title = new TextView(EditActivity.this);
                 title.setTypeface(null, Typeface.BOLD);
                 title.setText(getString(R.string.add_category_title));
-                final AlertDialog dialog = new MaterialAlertDialogBuilder(EditActivity.this)
+                @SuppressLint("RestrictedApi") final AlertDialog dialog = new MaterialAlertDialogBuilder(EditActivity.this)
                         .setTitle(R.string.add_category_title)
                         .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
@@ -157,7 +155,7 @@ public class EditActivity extends BasicActivity {
                         input.post(new Runnable() {
                             @Override
                             public void run() {
-                                InputMethodManager inputMethodManager = (InputMethodManager) EditActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                                InputMethodManager inputMethodManager = (InputMethodManager) EditActivity.this.getSystemService(INPUT_METHOD_SERVICE);
                                 if (inputMethodManager != null)
                                     inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
                             }
@@ -238,7 +236,7 @@ public class EditActivity extends BasicActivity {
 
                 db.updateRecord(record);
 
-                setResult(Activity.RESULT_OK);
+                setResult(RESULT_OK);
                 finish();
 
             }
@@ -248,7 +246,7 @@ public class EditActivity extends BasicActivity {
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setResult(Activity.RESULT_CANCELED);
+                setResult(RESULT_CANCELED);
                 finish();
             }
         });

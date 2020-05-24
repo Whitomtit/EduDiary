@@ -1,4 +1,4 @@
-package com.example.myapplication.model;
+package il.whitomtit.edudiary.model;
 
 import java.io.Serializable;
 

@@ -1,4 +1,4 @@
-package com.example.myapplication.util;
+package il.whitomtit.edudiary.util;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -9,7 +9,7 @@ import android.widget.FrameLayout;
 
 import androidx.appcompat.widget.PopupMenu;
 
-import com.example.myapplication.R;
+import il.whitomtit.edudiary.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 

@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package il.whitomtit.edudiary;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,16 +12,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myapplication.model.Category;
-import com.example.myapplication.model.Record;
-import com.example.myapplication.model.Item;
-import com.example.myapplication.model.Subject;
-import com.example.myapplication.util.RecordDbManager;
-import com.example.myapplication.util.Subjects;
-import com.example.myapplication.util.Utils;
+import il.whitomtit.edudiary.model.Category;
+import il.whitomtit.edudiary.model.Record;
+import il.whitomtit.edudiary.model.Item;
+import il.whitomtit.edudiary.model.Subject;
+import il.whitomtit.edudiary.util.RecordDbManager;
+import il.whitomtit.edudiary.util.Subjects;
+import il.whitomtit.edudiary.util.Utils;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -51,7 +52,8 @@ class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordHolder> {
     }
 
     @Override
-    public RecordHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @NonNull
+    public RecordHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         //Creates new and empty record card
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_record_card, parent, false);
 
